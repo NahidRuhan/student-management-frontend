@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Eye } from 'lucide-react';
+import Link from 'next/link';
 import { Student, StudentStatus } from '@/types/student';
 
 interface StudentTableProps {
@@ -91,7 +92,12 @@ export function StudentTable({ students, onEdit, onDelete, isLoading, isError }:
               </Badge>
             </TableCell>
             <TableCell className="text-right">
-              <div className="flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-2">
+                <Link href={`/students/${student.id}`}>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-text-secondary hover:text-primary-600 hover:bg-primary-50">
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   size="sm"
