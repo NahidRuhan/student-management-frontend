@@ -1,11 +1,21 @@
 # EduAyna - Student Management System
 
+### 🔗 Project Links
+- **Frontend Live Demo:** [https://student-management-frontend-rho-lilac.vercel.app](https://student-management-frontend-rho-lilac.vercel.app)
+- **Backend Live API:** [https://student-management-backend-beta-seven.vercel.app](https://student-management-backend-beta-seven.vercel.app)
+- **Frontend Repository:** [https://github.com/NahidRuhan/student-management-frontend](https://github.com/NahidRuhan/student-management-frontend)
+- **Backend Repository:** [https://github.com/NahidRuhan/student-management-backend](https://github.com/NahidRuhan/student-management-backend)
+
 ## Project Overview
 This repository contains the Full-Stack implementation of the Student Management Dashboard. 
 - **Frontend**: A sleek, modern, and responsive web application built with Next.js 16 (App Router), custom Tailwind CSS v4 primitives, and Redux Toolkit.
 - **Backend**: A robust RESTful API built with NestJS 11 and Prisma ORM to manage student records and authenticate users.
 
 Together, they provide full CRUD operations, pagination, filtering, sorting, and robust JWT-based authentication using HTTP-only cookies to secure data modifications.
+
+## API Documentation
+The frontend interacts with the REST API provided by the backend.
+- **Interactive Swagger UI**: [https://student-management-backend-beta-seven.vercel.app/api/docs](https://student-management-backend-beta-seven.vercel.app/api/docs)
 
 ## Requirements
 To run this project locally, you will need:
