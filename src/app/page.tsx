@@ -42,7 +42,7 @@ export default function StudentsPage() {
   if (status) queryParams.status = status;
   if (studentClass) queryParams.class = studentClass;
 
-  const { data, isLoading, isFetching } = useGetStudentsQuery(queryParams);
+  const { data, isLoading, isFetching, isError } = useGetStudentsQuery(queryParams);
 
   const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
   const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
@@ -133,6 +133,7 @@ export default function StudentsPage() {
       <StudentTable
         students={students}
         isLoading={isLoading || isFetching}
+        isError={isError}
         onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}
       />
