@@ -28,13 +28,12 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(null);
 
   // API Hooks
-  const { data, isLoading, isFetching } = useGetStudentsQuery({
-    search,
-    status: status as any,
-    class: studentClass,
-    page,
-    limit: 10,
-  });
+  const queryParams: any = { page, limit: 10 };
+  if (search) queryParams.search = search;
+  if (status) queryParams.status = status;
+  if (studentClass) queryParams.class = studentClass;
+
+  const { data, isLoading, isFetching } = useGetStudentsQuery(queryParams);
 
   const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
   const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
