@@ -14,6 +14,15 @@ import {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
 } from '@/store/api/studentsApi';
+import Swal from 'sweetalert2';
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+});
 
 export default function StudentsPage() {
   // Filters State
@@ -62,15 +71,16 @@ export default function StudentsPage() {
     try {
       if (selectedStudent) {
         await updateStudent({ id: selectedStudent.id, payload }).unwrap();
+        Toast.fire({ icon: 'success', title: 'Student updated successfully!' });
       } else {
         await createStudent(payload).unwrap();
+        Toast.fire({ icon: 'success', title: 'Student created successfully!' });
       }
       setIsFormOpen(false);
       setSelectedStudent(null);
     } catch (error) {
       console.error('Failed to save student:', error);
-      // In a real app, you'd show a toast notification here
-      alert('Failed to save student. Check console for details.');
+      Toast.fire({ icon: 'error', title: 'Failed to save student. Please try again.' });
     }
   };
 
@@ -78,11 +88,12 @@ export default function StudentsPage() {
     if (!selectedStudent) return;
     try {
       await deleteStudent(selectedStudent.id).unwrap();
+      Toast.fire({ icon: 'success', title: 'Student deleted successfully!' });
       setIsDeleteOpen(false);
       setSelectedStudent(null);
     } catch (error) {
       console.error('Failed to delete student:', error);
-      alert('Failed to delete student.');
+      Toast.fire({ icon: 'error', title: 'Failed to delete student.' });
     }
   };
 

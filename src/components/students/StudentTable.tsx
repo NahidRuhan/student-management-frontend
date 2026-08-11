@@ -51,11 +51,11 @@ export function StudentTable({ students, onEdit, onDelete, isLoading }: StudentT
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Contact Info</TableHead>
-          <TableHead>Class</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="w-[30%]">Name</TableHead>
+          <TableHead className="w-[35%]">Contact Info</TableHead>
+          <TableHead className="w-[15%]">Class</TableHead>
+          <TableHead className="w-[10%]">Status</TableHead>
+          <TableHead className="w-[10%] text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
