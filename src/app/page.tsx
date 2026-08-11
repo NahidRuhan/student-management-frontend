@@ -107,15 +107,15 @@ export default function StudentsPage() {
         currentSearch={search}
         currentStatus={status}
         currentClass={studentClass}
-        onSearch={(s) => { setSearch(s); setPage(1); }}
-        onStatusChange={(s) => { setStatus(s); setPage(1); }}
-        onClassChange={(c) => { setStudentClass(c); setPage(1); }}
-        onClear={() => {
+        onSearch={React.useCallback((s: string) => { setSearch(s); setPage(1); }, [])}
+        onStatusChange={React.useCallback((s: string) => { setStatus(s); setPage(1); }, [])}
+        onClassChange={React.useCallback((c: string) => { setStudentClass(c); setPage(1); }, [])}
+        onClear={React.useCallback(() => {
           setSearch('');
           setStatus('');
           setStudentClass('');
           setPage(1);
-        }}
+        }, [])}
       />
 
       {/* Table */}
