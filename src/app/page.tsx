@@ -25,10 +25,11 @@ const Toast = Swal.mixin({
 });
 
 export default function StudentsPage() {
-  // Filters State
   const [search, setSearch] = React.useState('');
   const [status, setStatus] = React.useState('');
   const [studentClass, setStudentClass] = React.useState('');
+  const [sortBy, setSortBy] = React.useState('');
+  const [sortOrder, setSortOrder] = React.useState('');
   const [page, setPage] = React.useState(1);
 
   // Modals State
@@ -41,6 +42,8 @@ export default function StudentsPage() {
   if (search) queryParams.search = search;
   if (status) queryParams.status = status;
   if (studentClass) queryParams.class = studentClass;
+  if (sortBy) queryParams.sortBy = sortBy;
+  if (sortOrder) queryParams.sortOrder = sortOrder;
 
   const { data, isLoading, isFetching, isError } = useGetStudentsQuery(queryParams);
 
@@ -113,18 +116,23 @@ export default function StudentsPage() {
         </Button>
       </div>
 
-      {/* Filters */}
       <StudentFilters
         currentSearch={search}
         currentStatus={status}
         currentClass={studentClass}
+        currentSortBy={sortBy}
+        currentSortOrder={sortOrder}
         onSearch={React.useCallback((s: string) => { setSearch(s); setPage(1); }, [])}
         onStatusChange={React.useCallback((s: string) => { setStatus(s); setPage(1); }, [])}
         onClassChange={React.useCallback((c: string) => { setStudentClass(c); setPage(1); }, [])}
+        onSortByChange={React.useCallback((val: string) => { setSortBy(val); setPage(1); }, [])}
+        onSortOrderChange={React.useCallback((val: string) => { setSortOrder(val); setPage(1); }, [])}
         onClear={React.useCallback(() => {
           setSearch('');
           setStatus('');
           setStudentClass('');
+          setSortBy('');
+          setSortOrder('');
           setPage(1);
         }, [])}
       />

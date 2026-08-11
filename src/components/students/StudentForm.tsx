@@ -126,13 +126,19 @@ export function StudentForm({ initialData, onSubmit, isLoading }: StudentFormPro
           onChange={handleChange}
           error={errors.phone}
         />
-        <Input
+        <Select
           label="Class / Grade"
           name="class"
-          placeholder="e.g. Grade 10"
           value={formData.class}
           onChange={handleChange}
           error={errors.class}
+          options={[
+            { value: '', label: 'Select Grade' },
+            ...Array.from({ length: 12 }).map((_, i) => ({
+              value: `Grade ${i + 1}`,
+              label: `Grade ${i + 1}`,
+            })),
+          ]}
         />
       </div>
       <Select

@@ -11,9 +11,13 @@ interface StudentFiltersProps {
   onSearch: (search: string) => void;
   onStatusChange: (status: string) => void;
   onClassChange: (className: string) => void;
+  onSortByChange: (sortBy: string) => void;
+  onSortOrderChange: (sortOrder: string) => void;
   currentSearch: string;
   currentStatus: string;
   currentClass: string;
+  currentSortBy: string;
+  currentSortOrder: string;
   onClear: () => void;
 }
 
@@ -21,9 +25,13 @@ export function StudentFilters({
   onSearch,
   onStatusChange,
   onClassChange,
+  onSortByChange,
+  onSortOrderChange,
   currentSearch,
   currentStatus,
   currentClass,
+  currentSortBy,
+  currentSortOrder,
   onClear,
 }: StudentFiltersProps) {
   const [searchTerm, setSearchTerm] = React.useState(currentSearch);
@@ -36,11 +44,12 @@ export function StudentFilters({
     return () => clearTimeout(timer);
   }, [searchTerm, onSearch]);
 
-  const hasFilters = currentSearch || currentStatus || currentClass;
+  const hasFilters = currentSearch || currentStatus || currentClass || currentSortBy || currentSortOrder;
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-end mb-6 bg-surface p-4 rounded-lg border border-border">
-      <div className="flex-1 w-full">
+    <div className="flex flex-col gap-4 mb-6 bg-surface p-4 rounded-lg border border-border">
+      <div className="flex flex-col sm:flex-row gap-4 items-end">
+        <div className="flex-1 w-full">
         <label className="text-sm font-medium text-text-secondary mb-1.5 block">
           Search
         </label>
@@ -70,11 +79,44 @@ export function StudentFilters({
       </div>
 
       <div className="w-full sm:w-48">
-        <Input
+        <Select
           label="Class"
-          placeholder="e.g. Grade 10"
           value={currentClass}
           onChange={(e) => onClassChange(e.target.value)}
+          options={[
+            { value: '', label: 'All Classes' },
+            ...Array.from({ length: 12 }).map((_, i) => ({
+              value: `Grade ${i + 1}`,
+              label: `Grade ${i + 1}`,
+            })),
+          ]}
+        />
+      </div>
+      
+      <div className="w-full sm:w-48">
+        <Select
+          label="Sort By"
+          value={currentSortBy}
+          onChange={(e) => onSortByChange(e.target.value)}
+          options={[
+            { value: '', label: 'Default' },
+            { value: 'name', label: 'Name' },
+            { value: 'createdAt', label: 'Created Date' },
+            { value: 'class', label: 'Class' },
+          ]}
+        />
+      </div>
+
+      <div className="w-full sm:w-48">
+        <Select
+          label="Sort Order"
+          value={currentSortOrder}
+          onChange={(e) => onSortOrderChange(e.target.value)}
+          options={[
+            { value: '', label: 'Default' },
+            { value: 'asc', label: 'Ascending' },
+            { value: 'desc', label: 'Descending' },
+          ]}
         />
       </div>
 
@@ -87,6 +129,7 @@ export function StudentFilters({
           Clear
         </Button>
       )}
+      </div>
     </div>
   );
 }
