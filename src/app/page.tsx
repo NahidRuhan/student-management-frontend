@@ -14,6 +14,10 @@ import {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
 } from '@/store/api/studentsApi';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import Swal from 'sweetalert2';
 
 const Toast = Swal.mixin({
@@ -25,6 +29,10 @@ const Toast = Swal.mixin({
 });
 
 export default function StudentsPage() {
+  const router = useRouter();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  
+  // Filters State
   const [search, setSearch] = React.useState('');
   const [status, setStatus] = React.useState('');
   const [studentClass, setStudentClass] = React.useState('');
@@ -56,16 +64,19 @@ export default function StudentsPage() {
 
   // Handlers
   const handleOpenCreate = () => {
+    if (!isAuthenticated) return router.push('/login');
     setSelectedStudent(null);
     setIsFormOpen(true);
   };
 
   const handleOpenEdit = (student: Student) => {
+    if (!isAuthenticated) return router.push('/login');
     setSelectedStudent(student);
     setIsFormOpen(true);
   };
 
   const handleOpenDelete = (student: Student) => {
+    if (!isAuthenticated) return router.push('/login');
     setSelectedStudent(student);
     setIsDeleteOpen(true);
   };

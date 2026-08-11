@@ -12,6 +12,7 @@ export const studentsApi = createApi({
   reducerPath: 'studentsApi',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
+    credentials: 'include',
   }),
   tagTypes: ['Student'],
   endpoints: (builder) => ({
