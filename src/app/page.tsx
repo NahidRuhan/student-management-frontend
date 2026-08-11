@@ -1,69 +1,205 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import * as React from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { StudentTable } from '@/components/students/StudentTable';
+import { StudentFilters } from '@/components/students/StudentFilters';
+import { StudentForm } from '@/components/students/StudentForm';
+import { Student, CreateStudentPayload } from '@/types/student';
+import {
+  useGetStudentsQuery,
+  useCreateStudentMutation,
+  useUpdateStudentMutation,
+  useDeleteStudentMutation,
+} from '@/store/api/studentsApi';
+
+export default function StudentsPage() {
+  // Filters State
+  const [search, setSearch] = React.useState('');
+  const [status, setStatus] = React.useState('');
+  const [studentClass, setStudentClass] = React.useState('');
+  const [page, setPage] = React.useState(1);
+
+  // Modals State
+  const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(null);
+
+  // API Hooks
+  const { data, isLoading, isFetching } = useGetStudentsQuery({
+    search,
+    status: status as any,
+    class: studentClass,
+    page,
+    limit: 10,
+  });
+
+  const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
+  const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
+  const [deleteStudent, { isLoading: isDeleting }] = useDeleteStudentMutation();
+
+  const students = data?.data || [];
+  const meta = data?.meta;
+
+  // Handlers
+  const handleOpenCreate = () => {
+    setSelectedStudent(null);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEdit = (student: Student) => {
+    setSelectedStudent(student);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenDelete = (student: Student) => {
+    setSelectedStudent(student);
+    setIsDeleteOpen(true);
+  };
+
+  const handleFormSubmit = async (payload: CreateStudentPayload) => {
+    try {
+      if (selectedStudent) {
+        await updateStudent({ id: selectedStudent.id, payload }).unwrap();
+      } else {
+        await createStudent(payload).unwrap();
+      }
+      setIsFormOpen(false);
+      setSelectedStudent(null);
+    } catch (error) {
+      console.error('Failed to save student:', error);
+      // In a real app, you'd show a toast notification here
+      alert('Failed to save student. Check console for details.');
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedStudent) return;
+    try {
+      await deleteStudent(selectedStudent.id).unwrap();
+      setIsDeleteOpen(false);
+      setSelectedStudent(null);
+    } catch (error) {
+      console.error('Failed to delete student:', error);
+      alert('Failed to delete student.');
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-text">Students</h1>
+          <p className="text-text-secondary mt-1">
+            Manage your student directory and enrollment status.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Button onClick={handleOpenCreate} className="w-full sm:w-auto">
+          <Plus className="mr-2 h-5 w-5" />
+          Add Student
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <StudentFilters
+        currentSearch={search}
+        currentStatus={status}
+        currentClass={studentClass}
+        onSearch={(s) => { setSearch(s); setPage(1); }}
+        onStatusChange={(s) => { setStatus(s); setPage(1); }}
+        onClassChange={(c) => { setStudentClass(c); setPage(1); }}
+        onClear={() => {
+          setSearch('');
+          setStatus('');
+          setStudentClass('');
+          setPage(1);
+        }}
+      />
+
+      {/* Table */}
+      <StudentTable
+        students={students}
+        isLoading={isLoading || isFetching}
+        onEdit={handleOpenEdit}
+        onDelete={handleOpenDelete}
+      />
+
+      {/* Pagination Controls */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 bg-surface p-4 rounded-lg border border-border">
+          <p className="text-sm text-text-secondary">
+            Showing <span className="font-medium text-text">{students.length}</span> of{' '}
+            <span className="font-medium text-text">{meta.total}</span> results
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1 || isLoading || isFetching}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center px-3 text-sm font-medium">
+              Page {page} of {meta.totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === meta.totalPages || isLoading || isFetching}
+              onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-      </main>
-    </div>
+      )}
+
+      {/* Add/Edit Modal */}
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={selectedStudent ? 'Edit Student' : 'Add New Student'}
+      >
+        <StudentForm
+          initialData={selectedStudent || undefined}
+          onSubmit={handleFormSubmit}
+          isLoading={isCreating || isUpdating}
+        />
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        title="Delete Student"
+      >
+        <div className="space-y-4">
+          <p className="text-text-secondary">
+            Are you sure you want to delete <span className="font-semibold text-text">{selectedStudent?.name}</span>? 
+            This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="secondary"
+              onClick={() => setIsDeleteOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteConfirm}
+              isLoading={isDeleting}
+            >
+              Delete Student
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </main>
   );
 }
