@@ -84,10 +84,13 @@ export function StudentFilters({
           onChange={(e) => onClassChange(e.target.value)}
           options={[
             { value: '', label: 'All Classes' },
-            ...Array.from({ length: 12 }).map((_, i) => ({
-              value: `Grade ${i + 1}`,
-              label: `Grade ${i + 1}`,
-            })),
+            ...Array.from({ length: 12 }).map((_, i) => {
+              const gradeNum = (i + 1).toString().padStart(2, '0');
+              return {
+                value: `Grade ${gradeNum}`,
+                label: `Grade ${gradeNum}`,
+              };
+            }),
           ]}
         />
       </div>
