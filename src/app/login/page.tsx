@@ -29,7 +29,8 @@ export default function LoginPage() {
         title: 'Logged in successfully',
       });
       router.push('/');
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
       Swal.fire({
         toast: true,
         position: 'top-end',
@@ -98,7 +99,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-4 text-center text-sm text-text-secondary">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary-600 hover:underline">
             Register here
           </Link>

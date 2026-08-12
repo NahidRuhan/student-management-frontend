@@ -3,41 +3,27 @@
 import * as React from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { StudentTable } from '@/components/students/StudentTable';
 import { StudentFilters } from '@/components/students/StudentFilters';
-import { StudentForm } from '@/components/students/StudentForm';
-import { Student, CreateStudentPayload } from '@/types/student';
-import {
-  useGetStudentsQuery,
-  useCreateStudentMutation,
-  useUpdateStudentMutation,
-  useDeleteStudentMutation,
-} from '@/store/api/studentsApi';
+import { StudentPagination } from '@/components/students/StudentPagination';
+import { StudentModals } from '@/components/students/StudentModals';
+import { Student } from '@/types/student';
+import { useGetStudentsQuery } from '@/store/api/studentsApi';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import Swal from 'sweetalert2';
-
-const Toast = Swal.mixin({
-  toast: true,
-  position: 'top-end',
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-});
+import { useStudentFilters } from '@/hooks/useStudentFilters';
 
 export default function StudentsPage() {
   const router = useRouter();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
-  // Filters State
-  const [search, setSearch] = React.useState('');
-  const [status, setStatus] = React.useState('');
-  const [studentClass, setStudentClass] = React.useState('');
-  const [sortBy, setSortBy] = React.useState('');
-  const [sortOrder, setSortOrder] = React.useState('');
-  const [page, setPage] = React.useState(1);
+  // Custom Hook for Filters
+  const {
+    search, status, studentClass, sortBy, sortOrder, page, setPage,
+    queryParams, handleSearch, handleStatusChange, handleClassChange,
+    handleSortByChange, handleSortOrderChange, handleClear
+  } = useStudentFilters();
 
   // Modals State
   const [isFormOpen, setIsFormOpen] = React.useState(false);
@@ -45,18 +31,7 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(null);
 
   // API Hooks
-  const queryParams: any = { page, limit: 10 };
-  if (search) queryParams.search = search;
-  if (status) queryParams.status = status;
-  if (studentClass) queryParams.class = studentClass;
-  if (sortBy) queryParams.sortBy = sortBy;
-  if (sortOrder) queryParams.sortOrder = sortOrder;
-
   const { data, isLoading, isFetching, isError } = useGetStudentsQuery(queryParams);
-
-  const [createStudent, { isLoading: isCreating }] = useCreateStudentMutation();
-  const [updateStudent, { isLoading: isUpdating }] = useUpdateStudentMutation();
-  const [deleteStudent, { isLoading: isDeleting }] = useDeleteStudentMutation();
 
   const students = data?.data || [];
   const meta = data?.meta;
@@ -78,36 +53,6 @@ export default function StudentsPage() {
     if (!isAuthenticated) return router.push('/login');
     setSelectedStudent(student);
     setIsDeleteOpen(true);
-  };
-
-  const handleFormSubmit = async (payload: CreateStudentPayload) => {
-    try {
-      if (selectedStudent) {
-        await updateStudent({ id: selectedStudent.id, payload }).unwrap();
-        Toast.fire({ icon: 'success', title: 'Student updated successfully!' });
-      } else {
-        await createStudent(payload).unwrap();
-        Toast.fire({ icon: 'success', title: 'Student created successfully!' });
-      }
-      setIsFormOpen(false);
-      setSelectedStudent(null);
-    } catch (error) {
-      console.error('Failed to save student:', error);
-      Toast.fire({ icon: 'error', title: 'Failed to save student. Please try again.' });
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedStudent) return;
-    try {
-      await deleteStudent(selectedStudent.id).unwrap();
-      Toast.fire({ icon: 'success', title: 'Student deleted successfully!' });
-      setIsDeleteOpen(false);
-      setSelectedStudent(null);
-    } catch (error) {
-      console.error('Failed to delete student:', error);
-      Toast.fire({ icon: 'error', title: 'Failed to delete student.' });
-    }
   };
 
   return (
@@ -132,19 +77,12 @@ export default function StudentsPage() {
         currentClass={studentClass}
         currentSortBy={sortBy}
         currentSortOrder={sortOrder}
-        onSearch={React.useCallback((s: string) => { setSearch(s); setPage(1); }, [])}
-        onStatusChange={React.useCallback((s: string) => { setStatus(s); setPage(1); }, [])}
-        onClassChange={React.useCallback((c: string) => { setStudentClass(c); setPage(1); }, [])}
-        onSortByChange={React.useCallback((val: string) => { setSortBy(val); setPage(1); }, [])}
-        onSortOrderChange={React.useCallback((val: string) => { setSortOrder(val); setPage(1); }, [])}
-        onClear={React.useCallback(() => {
-          setSearch('');
-          setStatus('');
-          setStudentClass('');
-          setSortBy('');
-          setSortOrder('');
-          setPage(1);
-        }, [])}
+        onSearch={handleSearch}
+        onStatusChange={handleStatusChange}
+        onClassChange={handleClassChange}
+        onSortByChange={handleSortByChange}
+        onSortOrderChange={handleSortOrderChange}
+        onClear={handleClear}
       />
 
       {/* Table */}
@@ -157,78 +95,23 @@ export default function StudentsPage() {
       />
 
       {/* Pagination Controls */}
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 bg-surface p-4 rounded-lg border border-border">
-          <p className="text-sm text-text-secondary">
-            Showing <span className="font-medium text-text">{students.length}</span> of{' '}
-            <span className="font-medium text-text">{meta.total}</span> results
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === 1 || isLoading || isFetching}
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-            >
-              Previous
-            </Button>
-            <div className="flex items-center px-3 text-sm font-medium">
-              Page {page} of {meta.totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={page === meta.totalPages || isLoading || isFetching}
-              onClick={() => setPage(p => Math.min(meta.totalPages, p + 1))}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <StudentPagination
+        meta={meta}
+        currentCount={students.length}
+        page={page}
+        isLoading={isLoading || isFetching}
+        onPageChange={setPage}
+      />
 
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        title={selectedStudent ? 'Edit Student' : 'Add New Student'}
-      >
-        <StudentForm
-          initialData={selectedStudent || undefined}
-          onSubmit={handleFormSubmit}
-          isLoading={isCreating || isUpdating}
-        />
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        title="Delete Student"
-      >
-        <div className="space-y-4">
-          <p className="text-text-secondary">
-            Are you sure you want to delete <span className="font-semibold text-text">{selectedStudent?.name}</span>? 
-            This action cannot be undone.
-          </p>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="secondary"
-              onClick={() => setIsDeleteOpen(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDeleteConfirm}
-              isLoading={isDeleting}
-            >
-              Delete Student
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Modals */}
+      <StudentModals
+        isFormOpen={isFormOpen}
+        setIsFormOpen={setIsFormOpen}
+        isDeleteOpen={isDeleteOpen}
+        setIsDeleteOpen={setIsDeleteOpen}
+        selectedStudent={selectedStudent}
+        setSelectedStudent={setSelectedStudent}
+      />
     </main>
   );
 }

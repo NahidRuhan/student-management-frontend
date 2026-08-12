@@ -26,7 +26,7 @@ interface StudentTableProps {
 export function StudentTable({ students, onEdit, onDelete, isLoading, isError }: StudentTableProps) {
   if (isError) {
     return (
-      <div className="w-full py-16 flex flex-col items-center justify-center bg-surface rounded-lg border border-danger-200 bg-danger-50 text-center px-4">
+      <div className="w-full py-16 flex flex-col items-center justify-center rounded-lg border border-danger-200 bg-danger-50 text-center px-4">
         <h3 className="text-lg font-semibold text-danger-600 mb-1">API Error</h3>
         <p className="text-danger-500 text-sm max-w-sm">
           Unable to load students. Please try again.

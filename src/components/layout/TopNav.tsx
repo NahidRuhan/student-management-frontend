@@ -27,7 +27,7 @@ export function TopNav() {
         icon: 'success',
         title: 'Logged out successfully',
       });
-    } catch (e) {
+    } catch {
       // Ignore errors on logout
     }
   };

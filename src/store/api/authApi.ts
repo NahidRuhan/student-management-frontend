@@ -1,5 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+export interface AuthUser {
+  id: string;
+  email: string;
+}
+
+export interface AuthCredentials {
+  email: string;
+  password?: string;
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
@@ -7,27 +17,27 @@ export const authApi = createApi({
     credentials: 'include',
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<any, any>({
+    login: builder.mutation<AuthUser, AuthCredentials>({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
         body: credentials,
       }),
     }),
-    register: builder.mutation<any, any>({
+    register: builder.mutation<AuthUser, AuthCredentials>({
       query: (credentials) => ({
         url: '/auth/register',
         method: 'POST',
         body: credentials,
       }),
     }),
-    logout: builder.mutation<any, void>({
+    logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
         method: 'POST',
       }),
     }),
-    getMe: builder.query<any, void>({
+    getMe: builder.query<AuthUser, void>({
       query: () => '/auth/me',
     }),
   }),

@@ -36,7 +36,8 @@ export default function RegisterPage() {
         title: 'Account created successfully',
       });
       router.push('/');
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
       Swal.fire({
         toast: true,
         position: 'top-end',

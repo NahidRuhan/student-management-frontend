@@ -54,4 +54,4 @@ export interface CreateStudentPayload {
   status: StudentStatus;
 }
 
-export interface UpdateStudentPayload extends Partial<CreateStudentPayload> {}
+export type UpdateStudentPayload = Partial<CreateStudentPayload>;
